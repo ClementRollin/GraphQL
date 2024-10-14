@@ -115,6 +115,6 @@ const resolvers = {
 const server = new ApolloServer({ typeDefs, resolvers });
 
 // Lancement du serveur
-server.listen().then(({ url }) => {
+server.listen({ port: 3520 }).then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
 });
