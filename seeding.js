@@ -63,12 +63,26 @@ async function seedDatabase() {
         }
     ];
 
-    // Insérer les livres
+    // Insérer les livres en supprimant les doublons s'ils existent
     for (const bookData of booksData) {
+        const existingBook = await prisma.book.findFirst({
+            where: { title: bookData.title },
+        });
+
+        // Si un livre avec ce titre existe, on le supprime
+        if (existingBook) {
+            await prisma.book.delete({
+                where: { id: existingBook.id },
+            });
+            console.log(`Livre supprimé car déjà présent : ${bookData.title}`);
+        }
+
+        // Récupérer l'auteur associé
         const author = await prisma.author.findUnique({
             where: { name: bookData.authorName },
         });
 
+        // Insérer le livre
         if (author) {
             await prisma.book.create({
                 data: {
@@ -78,6 +92,7 @@ async function seedDatabase() {
                     author: { connect: { id: author.id } },
                 },
             });
+            console.log(`Livre inséré : ${bookData.title}`);
         }
     }
 
