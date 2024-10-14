@@ -44,7 +44,7 @@ const resolvers = {
                 include: { author: true },
             });
             return books.map(book => ({
-                ...book,
+                ...book, // Copie des propriétés du livre
                 categories: JSON.parse(book.categories),  // Conversion JSON -> tableau
             }));
         },
@@ -100,7 +100,7 @@ const resolvers = {
 
             return {
                 ...newBook,
-                categories: JSON.parse(newBook.categories),  // Conversion JSON -> tableau
+                categories: JSON.parse(newBook.categories),
             };
         },
         addAuthor: async (_, { name }) => {
@@ -114,14 +114,14 @@ const resolvers = {
                 data: {
                     title: newTitle || undefined,
                     publicationDate: newPublicationDate || undefined,
-                    categories: newCategories ? JSON.stringify(newCategories) : undefined,  // Conversion tableau -> JSON
+                    categories: newCategories ? JSON.stringify(newCategories) : undefined,
                 },
                 include: { author: true },
             });
 
             return {
                 ...updatedBook,
-                categories: JSON.parse(updatedBook.categories),  // Conversion JSON -> tableau
+                categories: JSON.parse(updatedBook.categories),
             };
         },
         deleteBook: async (_, { title }) => {
