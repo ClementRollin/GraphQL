@@ -20,10 +20,12 @@ async function seedDatabase() {
             where: { name: authorData.name }
         });
 
+        // Si l'auteur existe déjà, on ne l'insère pas à nouveau
         if (!existingAuthor) {
             await prisma.author.create({
                 data: authorData,
             });
+            console.log(`Auteur ajouté : ${authorData.name}`);
         } else {
             console.log(`Auteur déjà présent : ${authorData.name}`);
         }
@@ -60,39 +62,42 @@ async function seedDatabase() {
             authorName: 'F. Scott Fitzgerald',
             publicationDate: '1925-04-10',
             categories: ['Fiction', 'Classics'],
+        },
+        {
+            title: 'Les aventures de Clément',
+            authorName: 'ROLLIN Clément',
+            publicationDate: '2021-05-27',
+            categories: ['Aventure', 'Découverte'],
         }
     ];
 
-    // Insérer les livres en supprimant les doublons s'ils existent
+    // Insérer les livres en évitant les doublons
     for (const bookData of booksData) {
         const existingBook = await prisma.book.findFirst({
             where: { title: bookData.title },
         });
 
-        // Si un livre avec ce titre existe, on le supprime
-        if (existingBook) {
-            await prisma.book.delete({
-                where: { id: existingBook.id },
+        // Si un livre avec ce titre existe déjà, on ne l'insère pas à nouveau
+        if (!existingBook) {
+            const author = await prisma.author.findUnique({
+                where: { name: bookData.authorName },
             });
-            console.log(`Livre supprimé car déjà présent : ${bookData.title}`);
-        }
 
-        // Récupérer l'auteur associé
-        const author = await prisma.author.findUnique({
-            where: { name: bookData.authorName },
-        });
-
-        // Insérer le livre
-        if (author) {
-            await prisma.book.create({
-                data: {
-                    title: bookData.title,
-                    publicationDate: bookData.publicationDate,
-                    categories: JSON.stringify(bookData.categories),
-                    author: { connect: { id: author.id } },
-                },
-            });
-            console.log(`Livre inséré : ${bookData.title}`);
+            if (author) {
+                await prisma.book.create({
+                    data: {
+                        title: bookData.title,
+                        publicationDate: bookData.publicationDate,
+                        categories: JSON.stringify(bookData.categories),
+                        author: { connect: { id: author.id } },
+                    },
+                });
+                console.log(`Livre ajouté : ${bookData.title}`);
+            } else {
+                console.log(`Auteur non trouvé pour le livre : ${bookData.title}`);
+            }
+        } else {
+            console.log(`Livre déjà présent : ${bookData.title}`);
         }
     }
 
