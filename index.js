@@ -1,5 +1,7 @@
 const { ApolloServer, gql } = require('apollo-server');
 const { PrismaClient } = require('@prisma/client');
+
+// Initialisation de Prisma
 const prisma = new PrismaClient();
 
 // Définition du schéma GraphQL
@@ -9,7 +11,7 @@ const typeDefs = gql`
     title: String!
     author: Author!
     publicationDate: String!
-    categories: [String!]!  # On garde ce format pour GraphQL
+    categories: [String!]!
   }
   
   type Author {
@@ -102,7 +104,7 @@ const resolvers = {
             };
         },
         addAuthor: async (_, { name }) => {
-            return await prisma.author.create({
+            return prisma.author.create({
                 data: { name },
             });
         },
@@ -136,5 +138,5 @@ const server = new ApolloServer({ typeDefs, resolvers });
 
 // Lancement du serveur Apollo
 server.listen().then(({ url }) => {
-    console.log(`🚀  Server ready at ${url}`);
+    console.log(`🚀 Server ready at ${url}`);
 });
